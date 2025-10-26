@@ -2,8 +2,8 @@
 #include <math.h> // round()関数のために保持
 
 // 閾値の配列
-int sikii_1[8] = {515, 506, 507, 498, 504, 510, 518, 523};//1代目白オム
-int sikii_2[8] = {515, 500, 480, 490, 505, 538, 452, 480};//2代目黒オムニ (こちらを使用)
+int sikii_1[8] = {515, 506, 507, 498, 504, 512, 518, 523};//白オム←こっち
+int sikii_2[8] = {515, 500, 480, 490, 505, 538, 452, 480};//黒オム 
 int sikii_3[8] = {0, 0, 0, 0, 0, 0, 0, 0};//ピンヘッダなし基盤
 
 void setup() {
@@ -18,14 +18,15 @@ void setup() {
   pinMode(A6, INPUT);
   pinMode(A7, INPUT);
 
+  
   // シリアルバッファをクリア
   while (Serial.available()>0){
     Serial.read();
   };
-
   // メインから開始信号を受け取るまで待機し、受け取ったら読み捨てる
   while (Serial.available()==0);
   Serial.read();
+  
 }
 
 void loop(){
@@ -39,12 +40,21 @@ void loop(){
   line_readings[6] = analogRead(A6);
   line_readings[7] = analogRead(A7);
 
+  //line_readings配列の内容をデバッグ出力
+  /*
+  for (int i = 0; i < 8; i++) {
+    Serial.print(line_readings[i]);
+    Serial.print(" ");
+  }
+  Serial.print("\n");
+  */
+
   // 検出されたピンの数をカウント
   int sumPin = 0;
   // line_readings配列を0または1の二値データに変換
   for (int i = 0; i < 8; i++) {
     // line_readings[i]は一時的に生データを保持。
-    if (line_readings[i] > sikii_2[i]) {
+    if (line_readings[i] > sikii_1[i]) {
       line_readings[i] = 0; // 閾値以上 = 反射が強い (白地/ラインなしを想定)
     } else {
       line_readings[i] = 1; // 閾値未満 = 反射が弱い (黒地/ラインありを想定)
@@ -52,8 +62,20 @@ void loop(){
     }
   }
 
+  //二値データに変換後のline_readings配列の内容をデバッグ出力
+  /*
+  for (int i = 0; i < 8; i++) {
+    Serial.print(line_readings[i]);
+    Serial.print(" ");
+  }
+  Serial.print("\n");
+  */
+
   // 検出されたピンが0個の場合は処理を中断して次のループへ (void関数のエラー解消)
-  if (sumPin == 0) return;
+  if (sumPin == 0){
+    //Serial.println("on field.");
+    return;
+  }
 
   // FIX 1: 可変長配列 (VLA) を避けるため、最大サイズ8の配列を使用
   // 検出されたピンのインデックス (0-7) を格納
