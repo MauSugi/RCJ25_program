@@ -8,7 +8,7 @@
 #include <math.h> 
 
 // 角度
-constexpr float PI = 3.1415926f;
+#define PI 3.1415926f
 float rad(float deg) {
     return (deg / 180.0f) * PI;
 }
@@ -538,7 +538,7 @@ void setup(){
     digitalWrite(L3, HIGH);
     digitalWrite(L4, HIGH);
     digitalWrite(L5, HIGH);
-    digitalWrite(L6, HIGH);  
+    digitalWrite(L6, HIGH);
     digitalWrite(L7, HIGH);
     digitalWrite(L8, HIGH);
     digitalWrite(L9, HIGH);
@@ -555,7 +555,7 @@ void setup(){
     digitalWrite(L3, LOW);
     digitalWrite(L4, LOW);
     digitalWrite(L5, LOW);
-    digitalWrite(L6, LOW);  
+    digitalWrite(L6, LOW);
     digitalWrite(L7, LOW);
     digitalWrite(L8, LOW);
     digitalWrite(L9, LOW);
@@ -580,7 +580,7 @@ void setup(){
             digitalWrite(L3, LOW);
             digitalWrite(L4, LOW);
             digitalWrite(L5, LOW);
-            digitalWrite(L6, LOW);  
+            digitalWrite(L6, LOW);
             digitalWrite(L7, HIGH);
             digitalWrite(L8, LOW);
             digitalWrite(L9, LOW);
@@ -593,7 +593,7 @@ void setup(){
             digitalWrite(L3, LOW);
             digitalWrite(L4, LOW);
             digitalWrite(L5, LOW);
-            digitalWrite(L6, LOW);  
+            digitalWrite(L6, LOW);
             digitalWrite(L7, LOW);
             digitalWrite(L8, HIGH);
             digitalWrite(L9, LOW);
@@ -606,7 +606,7 @@ void setup(){
             digitalWrite(L3, LOW);
             digitalWrite(L4, LOW);
             digitalWrite(L5, LOW);
-            digitalWrite(L6, LOW);  
+            digitalWrite(L6, LOW);
             digitalWrite(L7, LOW);
             digitalWrite(L8, LOW);
             digitalWrite(L9, HIGH);
@@ -619,7 +619,7 @@ void setup(){
             digitalWrite(L3, LOW);
             digitalWrite(L4, LOW);
             digitalWrite(L5, LOW);
-            digitalWrite(L6, LOW);  
+            digitalWrite(L6, LOW);
             digitalWrite(L7, LOW);
             digitalWrite(L8, LOW);
             digitalWrite(L9, LOW);
@@ -632,7 +632,7 @@ void setup(){
             digitalWrite(L3, LOW);
             digitalWrite(L4, LOW);
             digitalWrite(L5, LOW);
-            digitalWrite(L6, LOW);  
+            digitalWrite(L6, LOW);
             digitalWrite(L7, LOW);
             digitalWrite(L8, LOW);
             digitalWrite(L9, LOW);
@@ -645,7 +645,7 @@ void setup(){
             digitalWrite(L3, LOW);
             digitalWrite(L4, LOW);
             digitalWrite(L5, LOW);
-            digitalWrite(L6, LOW);  
+            digitalWrite(L6, LOW);
             digitalWrite(L7, LOW);
             digitalWrite(L8, LOW);
             digitalWrite(L9, LOW);
@@ -697,7 +697,7 @@ void setup(){
             digitalWrite(L3, LOW);
             digitalWrite(L4, HIGH);
             digitalWrite(L5, LOW);
-            digitalWrite(L6, LOW);  
+            digitalWrite(L6, LOW);
             digitalWrite(L7, LOW);
             digitalWrite(L8, LOW);
             digitalWrite(L9, LOW);
@@ -710,7 +710,7 @@ void setup(){
             digitalWrite(L3, LOW);
             digitalWrite(L4, LOW);
             digitalWrite(L5, HIGH);
-            digitalWrite(L6, LOW);  
+            digitalWrite(L6, LOW);
             digitalWrite(L7, LOW);
             digitalWrite(L8, LOW);
             digitalWrite(L9, LOW);
@@ -723,7 +723,7 @@ void setup(){
             digitalWrite(L3, LOW);
             digitalWrite(L4, LOW);
             digitalWrite(L5, LOW);
-            digitalWrite(L6, HIGH);  
+            digitalWrite(L6, HIGH);
             digitalWrite(L7, LOW);
             digitalWrite(L8, LOW);
             digitalWrite(L9, LOW);
