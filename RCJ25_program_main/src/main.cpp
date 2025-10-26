@@ -1,6 +1,8 @@
 // 名古屋大会
 // 一台目白オムニのプログラム
 
+//gitテスト
+
 // 標準数学関数のインクルード (PlatformIOでエラーを避けるため)
 #include <Arduino.h>
 #include <math.h> 
