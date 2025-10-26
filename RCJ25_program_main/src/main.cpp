@@ -341,6 +341,7 @@ float IR_angle(){
         }else{
             return angle;
         }
+
     } else {
         // 反応がない時はLEDを全て消灯
         digitalWrite(L1, LOW);
@@ -360,45 +361,45 @@ float IR_angle(){
 }
 // ボールの角度を入れると回り込みの角度を返す
 float mawarikomi(float IR){
-    if(IR < 180){
-        // 右側 (0~180)
-        if(IR < 10){
-            return IR;
-        }else if(IR < 30){
-            return IR * 2.5 - 15.0;
-        }else if(IR < 90){
-            return IR * 1.5 + 15.0;
-        }else{// 90~180 → 150~225
-            return IR * 0.833 + 75.0;
-        }
-    }else{
-        // 左側 (180~360)
-        IR = map(IR, 180, 360, -180, 0); // -180~0に変換
-        if(-10 < IR){
-            return IR;
-        }else if(-30 < IR){
-            IR = IR * 2.5 + 15.0;
-            return map(IR, 0, -180, 0, 180);//修正: mapの範囲を調整
-        }else if(-90 < IR){
-            IR = IR * 1.5 - 15.0;
-            return map(IR, 0, -180, 0, 180);//修正: mapの範囲を調整
-        }else{
-            IR = IR * 0.833 - 75.0;
-            return map(IR, 0, -180, 0, 180);//修正: mapの範囲を調整
-        }
+  if(IR < 180){
+    //右側
+    if(IR < 10){
+      return IR;
+    }else if(IR < 30){
+      return IR * 2.5 - 15.0;
+    }else if(IR < 90){
+      return IR * 1.5 + 15.0;
+    }else{//180→280
+      return IR * 0.833 + 75.0;
     }
+  }else{
+    //左側
+    IR = map(IR, 180, 360, -180, 0);
+    if(-10 < IR){
+      return IR;
+    }else if(-30 < IR){
+      IR = IR * 2.5 + 15.0;
+      return map(IR, 0, -360, 360, 0);
+    }else if(-90 < IR){
+      IR = IR * 1.5 - 15.0;
+      return map(IR, 0, -360, 360, 0);
+    }else{
+      IR = IR * 0.833 - 75.0;
+      return map(IR, 0, -360, 360, 0);
+    }
+  }
 }
 
 
 // モーター関連
-const int M1a = 4;
-const int M1b = 2;
-const int M2a = 6;
-const int M2b = 8;
-const int M3a = 12;
-const int M3b = 10;
-const int M4a = 47;
-const int M4b = 45;
+const int M1a = 47;
+const int M1b = 45;
+const int M2a = 10;
+const int M2b = 12;
+const int M3a = 8;
+const int M3b = 6;
+const int M4a = 4;
+const int M4b = 2;
 
 // 最小出力と最大出力を決める。
 const int M1_MIN = 50;
@@ -765,7 +766,7 @@ void loop() {
 
     // 姿勢制御
     float angle = compass();
-    Serial.println(angle);
+    //Serial.println(angle);
     dt = float(micros()-pretime) / 1000000.0;
     P = (0.0 - angle) / 180.0;
     I += P * dt;
@@ -780,7 +781,9 @@ void loop() {
     // Serial.println(sisei);
     
     // ボールアプローチ
-    if (IR_angle() != -1){// ボールの反応がある時は回り込み分の出力を配列に足す
+    float temp_IR = IR_angle();
+    Serial.println(temp_IR);
+    if (temp_IR != -1){// ボールの反応がある時は回り込み分の出力を配列に足す
         calc_idou(mawarikomi(IR_angle()));
     }
 
