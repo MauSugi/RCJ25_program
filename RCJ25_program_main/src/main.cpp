@@ -1,5 +1,4 @@
 // 名古屋大会
-// 一台目白オムニのプログラム
 
 //gitテスト
 
@@ -8,7 +7,6 @@
 #include <math.h> 
 
 // 角度
-#define PI 3.1415926f
 float rad(float deg) {
     return (deg / 180.0f) * PI;
 }
@@ -32,7 +30,7 @@ const int L12 = 44;
 
 
 // BNO関連
-#include <Wire.h>  
+#include <Wire.h>
 byte ADDRESS = 0x28; 
 byte EULER_REGISTER = 0x1A;
 int merge(byte low, byte high){
@@ -54,7 +52,7 @@ void initBNO(){
     Wire.beginTransmission(ADDRESS); 
     Wire.write(0x00);
     Wire.endTransmission(false); 
-    Wire.requestFrom(ADDRESS, 1); 
+    Wire.requestFrom(ADDRESS, 1);
     if (Wire.read() == 0xa0) {
         //Serial.println("BNO055 found.");     
         writeToBNO(0x3d, 0x00, 80);// operating mode = config mode     
@@ -391,7 +389,20 @@ float mawarikomi(float IR){
 }
 
 
+
 // モーター関連
+// 電源レバーでかい方
+const int M1a = 4;
+const int M1b = 2;
+const int M2a = 8;
+const int M2b = 6;
+const int M3a = 10;
+const int M3b = 12;
+const int M4a = 45;
+const int M4b = 47;
+
+// 電源レバー小さい方
+/*
 const int M1a = 47;
 const int M1b = 45;
 const int M2a = 10;
@@ -400,13 +411,14 @@ const int M3a = 8;
 const int M3b = 6;
 const int M4a = 4;
 const int M4b = 2;
+*/
 
 // 最小出力と最大出力を決める。
-const int M1_MIN = 50;
+const int M1_MIN = 30;
 const int M2_MIN = 30;
 const int M3_MIN = 30;
-const int M4_MIN = 50;
-const int M_MAX = 200;
+const int M4_MIN = 30;
+const int M_MAX = 250;
 
 // 各モーターを動かす関数
 void M1move(float spd){
@@ -474,8 +486,8 @@ void M4move(float spd){
 float MotorPower[4] = {0, 0, 0, 0};
 
 // 移動の出力と回転の出力の割合を指定する変数
-float idou_ratio = 0.7;
-float spin_ratio = 0.3;
+float idou_ratio = 0.9;
+float spin_ratio = 0.1;
 
 // 入力された角度に移動するモーター出力を計算して、配列に代入する
 void calc_idou(float angle){// degree(0~360)
@@ -500,9 +512,9 @@ void Move(){
 }
 
 // PID制御関連
-const float Kp = 1.5;
-const float Ki = 0.7;
-const float Kd = 0.15;
+const float Kp = 2.5;
+const float Ki = 1.0;
+const float Kd = 0.1;
 unsigned long pretime;
 float dt;
 float P;
@@ -761,8 +773,8 @@ void loop() {
         MotorPower[3] = 0;
     }
     
-    idou_ratio = 0.7;
-    spin_ratio = 0.3;
+    idou_ratio = 0.9;
+    spin_ratio = 0.1;
 
     // 姿勢制御
     float angle = compass();
@@ -797,10 +809,10 @@ void loop() {
 
     if (angle < -20 || 20 < angle){// 機体が大きく中心を向いていないとき、移動の出力割合を0にしてすぐ戻るようにする。
         idou_ratio = 0.0;
-        spin_ratio = 0.4;
+        spin_ratio = 0.5;
     }else{
-        idou_ratio = 0.7;
-        spin_ratio = 0.3;
+        idou_ratio = 0.9;
+        spin_ratio = 0.1;
     }
 
     // 最終モーター出力
