@@ -392,6 +392,7 @@ float mawarikomi(float IR){
 
 // モーター関連
 // 電源レバーでかい方
+/*
 const int M1a = 4;
 const int M1b = 2;
 const int M2a = 8;
@@ -400,9 +401,8 @@ const int M3a = 10;
 const int M3b = 12;
 const int M4a = 45;
 const int M4b = 47;
-
+*/
 // 電源レバー小さい方
-/*
 const int M1a = 47;
 const int M1b = 45;
 const int M2a = 10;
@@ -411,7 +411,7 @@ const int M3a = 8;
 const int M3b = 6;
 const int M4a = 4;
 const int M4b = 2;
-*/
+
 
 // 最小出力と最大出力を決める。
 const int M1_MIN = 30;
@@ -809,7 +809,7 @@ void loop() {
 
     if (angle < -20 || 20 < angle){// 機体が大きく中心を向いていないとき、移動の出力割合を0にしてすぐ戻るようにする。
         idou_ratio = 0.0;
-        spin_ratio = 0.5;
+        spin_ratio = 0.7;
     }else{
         idou_ratio = 0.9;
         spin_ratio = 0.1;
