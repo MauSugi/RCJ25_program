@@ -807,13 +807,13 @@ void loop() {
     Serial.println("");
     */
 
-    if (angle < -20 || 20 < angle){// 機体が大きく中心を向いていないとき、移動の出力割合を0にしてすぐ戻るようにする。
-        idou_ratio = 0.0;
-        spin_ratio = 0.7;
-    }else{
-        idou_ratio = 0.9;
-        spin_ratio = 0.1;
-    }
+    //if (angle < -20 || 20 < angle){// 機体が大きく中心を向いていないとき、移動の出力割合を0にしてすぐ戻るようにする。
+        //idou_ratio = 0.0;
+        //spin_ratio = 0.7;
+    //}else{
+    //    idou_ratio = 0.9;
+    //    spin_ratio = 0.1;
+    //}
 
     // 最終モーター出力
     Move();
