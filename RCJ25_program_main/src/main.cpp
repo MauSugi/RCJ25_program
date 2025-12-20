@@ -117,7 +117,6 @@ float compass(){
     return yaw;
 }
 
-
 // ボールセンサ関連
 const int IR1 = A15;
 const int IR2 = A10;
@@ -402,15 +401,16 @@ const int M3b = 12;
 const int M4a = 45;
 const int M4b = 47;
 */
+
 // 電源レバー小さい方
 const int M1a = 47;
 const int M1b = 45;
-const int M2a = 10;
-const int M2b = 12;
+const int M2a = 12;
+const int M2b = 10;
 const int M3a = 8;
 const int M3b = 6;
-const int M4a = 4;
-const int M4b = 2;
+const int M4a = 2;
+const int M4b = 4;
 
 
 // 最小出力と最大出力を決める。
@@ -512,9 +512,9 @@ void Move(){
 }
 
 // PID制御関連
-const float Kp = 2.5;
-const float Ki = 1.0;
-const float Kd = 0.1;
+const float Kp = 6.0;
+const float Ki = 3.0;
+const float Kd = 0.4;
 unsigned long pretime;
 float dt;
 float P;
@@ -757,22 +757,7 @@ void loop() {
     MotorPower[1] = 0;
     MotorPower[2] = 0;
     MotorPower[3] = 0;
-    
-    // ライン反応時
-    while (Serial.available() > 0){// 白線を検知した信号の分だけ、白線の反対に動く
-        int data = Serial.read();
-        float Line_angle = map(data, 0, 255, 0, 360);
-        idou_ratio = 0.7;
-        calc_idou(Line_angle);
-        idou_ratio = 0.3;
-        calc_idou(IR_angle());
-        Move();// 白線の反対に動くモーター出力と、ボールを追いかけるモーター出力を合成
-        MotorPower[0] = 0;
-        MotorPower[1] = 0;
-        MotorPower[2] = 0;
-        MotorPower[3] = 0;
-    }
-    
+
     idou_ratio = 0.9;
     spin_ratio = 0.1;
 
@@ -785,12 +770,30 @@ void loop() {
     D = (P - preP) / dt;
     preP = P;
     sisei = Kp * P + Ki * I + Kd * D;
-    if(-3 < angle && angle < 3){
-        sisei = 0;
-    }
     calc_spin(sisei);// 姿勢制御分の出力を配列に足す
-    
     // Serial.println(sisei);
+
+    // ライン反応時
+    while (Serial.available() > 0){// 白線を検知した信号の分だけ、白線の反対に動く
+        int data = Serial.read();
+        float Line_angle = map(data, 0, 255, 0, 360);
+        idou_ratio = 0.68;
+        calc_idou(Line_angle);
+        idou_ratio = 0.2;
+        calc_idou(IR_angle());
+        spin_ratio = 0.12;
+        if (angle < -20 || 20 < angle){
+            calc_spin(sisei);
+        }
+        Move();// 白線の反対に動くモーター出力と、ボールを追いかけるモーター出力を合成
+        MotorPower[0] = 0;
+        MotorPower[1] = 0;
+        MotorPower[2] = 0;
+        MotorPower[3] = 0;
+    }
+    
+    idou_ratio = 0.9;
+    spin_ratio = 0.1;
     
     // ボールアプローチ
     float temp_IR = IR_angle();

@@ -2,9 +2,7 @@
 #include <math.h> // round()関数のために保持
 
 // 閾値の配列
-int sikii_1[8] = {515, 506, 507, 498, 504, 512, 518, 523};//白オム←こっち
-int sikii_2[8] = {515, 500, 480, 490, 505, 538, 452, 480};//黒オム 
-int sikii_3[8] = {0, 0, 0, 0, 0, 0, 0, 0};//ピンヘッダなし基盤
+int line_TH1[8] = {519, 504, 483, 503, 514, 543, 459, 486};//黒_レバー大;
 
 void setup() {
   Serial.begin(115200);
@@ -18,15 +16,21 @@ void setup() {
   pinMode(A6, INPUT);
   pinMode(A7, INPUT);
 
-  
   // シリアルバッファをクリア
   while (Serial.available()>0){
     Serial.read();
   };
-  // メインから開始信号を受け取るまで待機し、受け取ったら読み捨てる
-  while (Serial.available()==0);
-  Serial.read();
+
+  // メインから開始信号を受け取るまで最大値と最小値を測定し、受け取ったら読み捨てる
+  while (Serial.available()==0) {
+    /*
+    for (int i = 0; i < 8; i++) {
+      int temp = analogRead(A0 + i); // A0からA7まで順に読み取る
+      delay(3); // 少し待つ
+    }*/
+  }
   
+  Serial.read();
 }
 
 void loop(){
@@ -41,27 +45,26 @@ void loop(){
   line_readings[7] = analogRead(A7);
 
   //line_readings配列の内容をデバッグ出力
-  /*
   for (int i = 0; i < 8; i++) {
     Serial.print(line_readings[i]);
     Serial.print(" ");
   }
   Serial.print("\n");
-  */
-
+  
   // 検出されたピンの数をカウント
   int sumPin = 0;
   // line_readings配列を0または1の二値データに変換
   for (int i = 0; i < 8; i++) {
     // line_readings[i]は一時的に生データを保持。
-    if (line_readings[i] > sikii_1[i]) {
+    if (line_readings[i] > line_TH1[i]) {
       line_readings[i] = 0; // 閾値以上 = 反射が強い (白地/ラインなしを想定)
     } else {
       line_readings[i] = 1; // 閾値未満 = 反射が弱い (黒地/ラインありを想定)
       sumPin++;
     }
   }
-
+  
+  
   //二値データに変換後のline_readings配列の内容をデバッグ出力
   /*
   for (int i = 0; i < 8; i++) {
@@ -124,11 +127,11 @@ void loop(){
   // FIX 4: map()の代わりに手動で浮動小数点数のスケーリングを実行 (0-360 -> 0-255)
   go_angle = go_angle * (255.0f / 360.0f);
 
-  // FIX 3: 意味のないキャスト (int)go_angle; を削除し、
   // round() で丸めてから uint8_t にキャスト
   uint8_t data = (uint8_t)round(go_angle);
   
   // 角度データをシリアル送信
   Serial.write(data);
   //Serial.println(data);
+  
 }
