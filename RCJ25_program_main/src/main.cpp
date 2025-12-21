@@ -28,7 +28,6 @@ const int L10 = 32;
 const int L11 = 42;
 const int L12 = 44;
 
-
 // BNO関連
 #include <Wire.h>
 byte ADDRESS = 0x28; 
@@ -357,41 +356,71 @@ float IR_angle(){
     }
 }
 // ボールの角度を入れると回り込みの角度を返す
-float mawarikomi(float IR){
-  if(IR < 180){
-    //右側
-    if(IR < 10){
+float mawarikomi(float IR) {
+  if (IR < 180) {
+    // --- 右側の処理 (0 ~ 180度) ---
+    if (IR < 10) {
       return IR;
-    }else if(IR < 30){
-      return IR * 2.5 - 15.0;
-    }else if(IR < 90){
-      return IR * 1.5 + 15.0;
-    }else{//180→280
-      return IR * 0.833 + 75.0;
+    } else if (IR < 30) {
+      // (10, 10) -> (30, 75)
+      return IR * 3.25f - 22.5f;
+    } else if (IR < 90) {
+      // (30, 75) -> (90, 165)
+      return IR * 1.5f + 30.0f;
+    } else {
+      // (90, 165) -> (180, 225)
+      return IR * 0.667f + 105.0f;
     }
-  }else{
-    //左側
-    IR = map(IR, 180, 360, -180, 0);
-    if(-10 < IR){
-      return IR;
-    }else if(-30 < IR){
-      IR = IR * 2.5 + 15.0;
-      return map(IR, 0, -360, 360, 0);
-    }else if(-90 < IR){
-      IR = IR * 1.5 - 15.0;
-      return map(IR, 0, -360, 360, 0);
-    }else{
-      IR = IR * 0.833 - 75.0;
-      return map(IR, 0, -360, 360, 0);
+  } else {
+    // --- 左側の処理 (180 ~ 360度) ---
+    // 一旦 -180 ~ 0 の範囲に変換して計算
+    float tempIR = map(IR, 180, 360, -180, 0);
+    float result;
+
+    if (tempIR > -10) {
+      result = tempIR;
+    } else if (tempIR > -30) {
+      // (-10, -10) -> (-30, -75)
+      result = tempIR * 3.25f + 22.5f;
+    } else if (tempIR > -90) {
+      // (-30, -75) -> (-90, -165)
+      result = tempIR * 1.5f - 30.0f;
+    } else {
+      // (-90, -165) -> (-180, -225)
+      result = tempIR * 0.667f - 105.0f;
     }
+
+    // 計算した負の角度（例：-225）を 0~360 の範囲（例：135）に戻す
+    // map(result, 0, -360, 360, 0) は result + 360 と同等です
+    return result + 360.0f;
   }
 }
 
+float mawarikomi_smooth(float IR) {
+  float x = IR;
+  bool is_left = false;
 
+  // 180度より大きい（左側）場合は反転させて計算
+  if (x > 180) {
+    x = 360 - x;
+    is_left = true;
+  }
+
+  // 三次関数による計算
+  // 式: f(x) = -0.000067*x^3 + 0.0134*x^2 + x
+  float y = (-0.000067 * x * x * x) + (0.0134 * x * x) + (1.3 * x);
+
+  // 左側の場合は角度を 360 - y で元に戻す
+  if (is_left) {
+    return 360 - y;
+  } else {
+    return y;
+  }
+}
 
 // モーター関連
-// 電源レバーでかい方
-/*
+// 黒・電源レバーでかい方
+
 const int M1a = 4;
 const int M1b = 2;
 const int M2a = 8;
@@ -400,9 +429,11 @@ const int M3a = 10;
 const int M3b = 12;
 const int M4a = 45;
 const int M4b = 47;
-*/
+const int M_MAX = 180;
 
-// 電源レバー小さい方
+
+// 白・電源レバー小さい方
+/*
 const int M1a = 47;
 const int M1b = 45;
 const int M2a = 12;
@@ -411,14 +442,15 @@ const int M3a = 8;
 const int M3b = 6;
 const int M4a = 2;
 const int M4b = 4;
-
+const int M_MAX = 140;
+*/
 
 // 最小出力と最大出力を決める。
 const int M1_MIN = 30;
 const int M2_MIN = 30;
 const int M3_MIN = 30;
 const int M4_MIN = 30;
-const int M_MAX = 250;
+
 
 // 各モーターを動かす関数
 void M1move(float spd){
@@ -746,8 +778,14 @@ void setup(){
         }
     }
 
-    // サブマイコン何かデータを送って、ラインのプログラムも開始させる。
+    // サブマイコンに何かデータを送って、ラインのプログラムも開始させる。
     Serial.write(1);
+
+    //シリアルバッファのクリア
+    while (Serial.available() > 0){
+        Serial.read();
+    }
+
     pretime = micros();
 }
 
@@ -790,6 +828,10 @@ void loop() {
         MotorPower[1] = 0;
         MotorPower[2] = 0;
         MotorPower[3] = 0;
+
+        do {
+            Serial.read();
+        }while (Serial.available() > 200);
     }
     
     idou_ratio = 0.9;
@@ -797,12 +839,28 @@ void loop() {
     
     // ボールアプローチ
     float temp_IR = IR_angle();
+    
     Serial.println(temp_IR);
+    /*
     if (temp_IR != -1){// ボールの反応がある時は回り込み分の出力を配列に足す
         calc_idou(mawarikomi(IR_angle()));
+    }*/
+
+    //黒・キーパー用の動き
+    if (temp_IR != -1) {
+        if (sin(rad(temp_IR)) > 0) {
+            // --- 右側の処理 (0 ~ 180度) ---
+            idou_ratio = abs(sin(rad(temp_IR)));
+            calc_idou(70);
+        } else {
+            // --- 左側の処理 (180 ~ 360度) ---
+            idou_ratio = abs(sin(rad(temp_IR)));
+            calc_idou(250);
+        }
     }
 
-    /*
+    
+    /*モーター出力確認用
     for (int i=0; i<4; i++){
         Serial.print(MotorPower[i]);
         Serial.print("  ");
