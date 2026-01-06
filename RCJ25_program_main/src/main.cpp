@@ -39,7 +39,6 @@ int merge(byte low, byte high){
     }
     return result; 
 }
-
 void writeToBNO(byte reg, byte val, int dly){
     Wire.beginTransmission(ADDRESS);
     Wire.write(reg);
